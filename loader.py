@@ -24,6 +24,7 @@ from .vendor.codec_model import Qwen3TTSTokenizerV2Model
 logger = logging.getLogger("BreezeTTS2")
 
 MODEL_FOLDER_NAME = "breezetts2"
+LOCAL_MODEL_DIR = Path("C:/models/tts/Breeze-TTS-2")
 MIRROR_REPO_ID = "drbaph/Breeze-TTS-2-comfyui"
 HF_ENDPOINT = "https://huggingface.co"
 
@@ -134,6 +135,14 @@ def _has_component_files(model_dir: Path, weights_name: str) -> bool:
     return (model_dir / weights_name).is_file()
 
 
+def _has_local_model_files(model_dir: Path) -> bool:
+    if not (model_dir / "config.json").is_file():
+        return False
+    if not (model_dir / "audio_tokenizer" / "model.safetensors").is_file():
+        return False
+    return (model_dir / "model.safetensors.index.json").is_file() or (model_dir / "model.safetensors").is_file()
+
+
 def _download_model_files(repo_id: str, weights_name: str, dest: Path) -> None:
     from huggingface_hub import snapshot_download
 
@@ -147,10 +156,13 @@ def _download_model_files(repo_id: str, weights_name: str, dest: Path) -> None:
     )
 
 
-def resolve_model_dir(repo_choice: str, download_if_missing: bool) -> tuple[Path, str]:
+def resolve_model_dir(repo_choice: str, download_if_missing: bool) -> tuple[Path, str | None]:
     repo_id, weights_name = REPO_CHOICES.get(repo_choice, (None, None))
     if repo_id is None:
         raise ValueError(f"Unknown model choice: {repo_choice!r}")
+    if _has_local_model_files(LOCAL_MODEL_DIR):
+        logger.info("Using local Breeze TTS 2 model at %s.", LOCAL_MODEL_DIR)
+        return LOCAL_MODEL_DIR, None
     safe_name = _safe_repo_name(repo_id)
     for base in model_dirs():
         candidate = base / safe_name
@@ -166,8 +178,8 @@ def resolve_model_dir(repo_choice: str, download_if_missing: bool) -> tuple[Path
     return dest, weights_name
 
 
-def weights_path(model_dir: Path, weights_name: str) -> Path:
-    return model_dir / weights_name
+def weights_path(model_dir: Path, weights_name: str | None) -> Path:
+    return model_dir if weights_name is None else model_dir / weights_name
 
 
 # --------------------------------------------------------------------------- #
@@ -384,7 +396,7 @@ class BreezeBundle:
     codec: nn.Module
     tokenizer: Any
     model_dir: Path
-    weights_name: str
+    weights_name: str | None
     device: torch.device
     dtype_name: str
     attention: str
