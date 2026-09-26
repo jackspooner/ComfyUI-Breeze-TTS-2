@@ -101,7 +101,7 @@ All mirrors live in [drbaph/Breeze-TTS-2-comfyui](https://huggingface.co/drbaph/
 
 ## Model Files
 
-If `C:/models/tts/Breeze-TTS-2/` contains the original sharded checkpoint, it is used directly for every model selection. Otherwise, weights are stored per source repo under `ComfyUI/models/breezetts2/` (primary folder first; extra_model_paths.yaml entries and symlinks are searched too). Missing files download automatically when `download_if_missing` is on, otherwise the error names the expected folder.
+If `C:/Models/audio/speech/TTS/Breeze-TTS-2/` contains the original sharded checkpoint, it is used directly for every model selection. Otherwise, weights are stored per source repo under `ComfyUI/models/breezetts2/` (primary folder first; extra_model_paths.yaml entries and symlinks are searched too). Missing files download automatically when `download_if_missing` is on, otherwise the error names the expected folder.
 
 ```
 📂 ComfyUI/

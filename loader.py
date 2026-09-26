@@ -24,7 +24,7 @@ from .vendor.codec_model import Qwen3TTSTokenizerV2Model
 logger = logging.getLogger("BreezeTTS2")
 
 MODEL_FOLDER_NAME = "breezetts2"
-LOCAL_MODEL_DIR = Path("C:/models/tts/Breeze-TTS-2")
+LOCAL_MODEL_DIR = Path("C:/Models/audio/speech/TTS/Breeze-TTS-2")
 MIRROR_REPO_ID = "drbaph/Breeze-TTS-2-comfyui"
 HF_ENDPOINT = "https://huggingface.co"
 

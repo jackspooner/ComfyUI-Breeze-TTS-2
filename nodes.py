@@ -94,7 +94,7 @@ class BreezeTTS2LoadModel:
                     {
                         "default": loader.HYBRID_LABEL,
                         "tooltip": (
-                            "When C:/models/tts/Breeze-TTS-2 is present, its local sharded model is used regardless of this selection.\n"
+                            "When C:/Models/audio/speech/TTS/Breeze-TTS-2 is present, its local sharded model is used regardless of this selection.\n"
                             "int8 hybrid: backbone + text encoder INT8, depth decoder bf16 — bf16 speed at 5.5 GiB (recommended).\n"
                             "bf16: no quantization — best quality, 7.5 GiB.\n"
                             "int8: all transformer linears INT8 — smallest at 5.2 GiB, ~60% slower decode.\n"
