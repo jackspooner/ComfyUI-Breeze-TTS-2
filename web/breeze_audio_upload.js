@@ -1,4 +1,4 @@
-import { app } from "../../../scripts/app.js";
+import { app } from "../../scripts/app.js";
 
 // The core Comfy.AudioWidget extension injects its `audioUI` player widget
 // only for a hardcoded list of core nodes (LoadAudio, SaveAudio, ...).
