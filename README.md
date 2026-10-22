@@ -1,5 +1,57 @@
 # ComfyUI-Breeze-TTS-2
 
+## Workspace2 fork
+
+This fork derives from [Saganaki22/ComfyUI-Breeze-TTS-2](https://github.com/Saganaki22/ComfyUI-Breeze-TTS-2)
+and its [upstream README](https://github.com/Saganaki22/ComfyUI-Breeze-TTS-2/blob/main/README.md).
+Upstream provides bilingual voice cloning, voice design, voice direction,
+multi-speaker dialogue, quantized checkpoints and ComfyUI model management.
+The upstream documentation and licensing information are retained below.
+
+This fork retains the organized local model path and delegates Whisper reference
+transcription to the separately installed Cutlery-Nodes implementation. See the
+managed Whisper and development sections below for requirements and limitations.
+
+## Development
+
+Use a prepared ComfyUI Python with Python >=3.10, PyTorch, Torchaudio, NumPy and
+Faster-Whisper installed. In a fresh worktree, run
+`COMFYUI_PYTHON=<python> CUTLERY_NODES_ROOT=<cutlery-checkout> python3 tools/setup_worktree.py`.
+Setup only checks prerequisites; it installs nothing, loads no weights and starts
+no services. Run `<python> -m unittest discover -s tests -v` for verification.
+See [AGENTS.md](AGENTS.md) for source ownership and live activation requirements.
+
+## Managed Whisper
+
+Install [Cutlery-Nodes](https://github.com/jackspooner/Cutlery-Nodes) with the
+`CutleryFasterWhisperLoader` and `CutleryFasterWhisperTranscribeLyrics` nodes,
+including optional `task` and `chunk_length_s` inputs. Both the Whisper helper
+and Speaker's empty-transcript path delegate to these registered nodes, sharing
+Cutlery's model reuse, GPU admission, audio resampling and idle cache reclamation.
+The default remains `whisper-large-v3-turbo`, mapped to Cutlery's `large-v3-turbo`.
+
+Provision CTranslate2 model files under the configured ComfyUI models root at
+`audio/transcription/faster-whisper/large-v3-turbo` before execution. See
+[Cutlery's managed Whisper guide](https://github.com/jackspooner/Cutlery-Nodes/blob/main/docs/managed-whisper.md)
+for files, dependency setup, other model selections and recovery. Existing
+Transformers weights under `audio_encoders` are not CTranslate2 models. Missing
+nodes or weights fail explicitly; there is no fallback pipeline or automatic download.
+
+Existing node IDs, input order, model/language choices and output sockets remain
+compatible. The Whisper helper returns the original AUDIO and trimmed transcript;
+Speaker retains its speaker/AUDIO/transcript tuple and UI text. Manual transcripts
+and instruction-only speakers do not run Whisper. Translation targets English and
+quality depends on the selected model; turbo is primarily a transcription model.
+Chunk length is forwarded to Faster-Whisper (0 uses its default). BF16 maps to
+native CTranslate2 BF16 on CUDA and FP32 on CPU. The saved `download_if_missing`
+input remains accepted, but both values use preinstalled weights only.
+
+After installing matching sources, restart only an idle ComfyUI and refresh the
+frontend. The isolated tests do not prove real-model transcription quality or
+GPU release; those require queued live verification with installed weights.
+
+## Upstream documentation
+
 **English** | [简体中文](README_ZH.md)
 
 <img width="1483" height="1170" alt="Screenshot 2026-08-26 160830" src="https://github.com/user-attachments/assets/95f2f346-472e-45a5-bd3e-625007c6cc39" />

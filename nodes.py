@@ -13,6 +13,7 @@ import torch
 from . import loader
 from . import native
 from . import runtime
+from . import whisper as whisper_asr
 from .loader import ATTENTION_OPTIONS, DECODE_MODE_OPTIONS, DEVICE_OPTIONS, DTYPE_OPTIONS, REPO_CHOICES
 
 logger = logging.getLogger("BreezeTTS2")
@@ -697,10 +698,8 @@ class BreezeTTS2Speaker:
         transcript = (reference_text or "").strip()
         auto_used = False
         if audio_dict is not None and not transcript and bool(auto_transcribe_if_empty):
-            from . import whisper as whisper_asr
-
             _passthrough, transcript = whisper_asr.BreezeWhisperTranscribe().transcribe(
-                audio_dict, "whisper-large-v3-turbo", "auto", "auto", "transcribe", 30, True
+                audio_dict, "whisper-large-v3-turbo", "auto", "auto", "transcribe", 30, False
             )
             transcript = transcript.strip()
             auto_used = bool(transcript)
