@@ -19,7 +19,7 @@ Faster-Whisper installed. In a fresh worktree, run
 `COMFYUI_PYTHON=<python> CUTLERY_NODES_ROOT=<cutlery-checkout> python3 tools/setup_worktree.py`.
 Setup only checks prerequisites; it installs nothing, loads no weights and starts
 no services. Run `<python> -m unittest discover -s tests -v` for verification.
-See [AGENTS.md](AGENTS.md) for source ownership and live activation requirements.
+See [AGENTS.md](AGENTS.md) for prepared-runtime verification and live activation requirements.
 
 ## Managed Whisper
 
