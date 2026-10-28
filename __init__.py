@@ -98,11 +98,14 @@ try:
 
     from .nodes import NODE_CLASS_MAPPINGS as _NODES, NODE_DISPLAY_NAME_MAPPINGS as _NODE_NAMES
     from .whisper import NODE_CLASS_MAPPINGS as _WHISPER, NODE_DISPLAY_NAME_MAPPINGS as _WHISPER_NAMES
+    from .stages import NODE_CLASS_MAPPINGS as _STAGES, NODE_DISPLAY_NAME_MAPPINGS as _STAGE_NAMES
 
     NODE_CLASS_MAPPINGS.update(_NODES)
     NODE_CLASS_MAPPINGS.update(_WHISPER)
+    NODE_CLASS_MAPPINGS.update(_STAGES)
     NODE_DISPLAY_NAME_MAPPINGS.update(_NODE_NAMES)
     NODE_DISPLAY_NAME_MAPPINGS.update(_WHISPER_NAMES)
+    NODE_DISPLAY_NAME_MAPPINGS.update(_STAGE_NAMES)
     logger.info("Registered %d node(s).", len(NODE_CLASS_MAPPINGS))
 except Exception:
     logger.exception("Failed to register Breeze TTS 2 nodes.")

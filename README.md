@@ -11,6 +11,41 @@ The upstream documentation and licensing information are retained below.
 This fork retains the organized local model path and delegates Whisper reference
 transcription to the separately installed Cutlery-Nodes implementation. See the
 managed Whisper and development sections below for requirements and limitations.
+It also exposes retained voice-design stages using the original native runtime.
+
+## Voice-design stages
+
+`BreezeTTS2PrepareVoiceDesign` accepts the original `BreezeTTS2VoiceDesign`
+inputs and returns `LATENT` state. Connect it to
+`BreezeTTS2GenerateCodes.state`, then its state to
+`BreezeTTS2DecodeCodes.state` for 24 kHz mono AUDIO. Generate and decode also
+require `breeze_model` from the same loader settings; include the loader in
+each native stage graph. Existing combined nodes remain compatible.
+
+Preparation retains CPU embeddings, conditional/unconditional CFG masks, base
+positions, actual prefill length, bounded frame cap, sampling controls and RNG
+state. Generated state retains private codec codes and the decoder's starting
+RNG. Model directory/weight name, selected device, precision, quantization,
+attention and decode mode are checked at each consuming phase. Checkpoint paths
+must stay immutable during the batch; the owner plan binds exact revisions and
+reference/input hashes. The original loader/patchers retain ComfyUI admission
+and eviction ownership. No model objects or live KV-cache handles cross stages.
+
+`LATENT` is a safe tensor/data metadata carrier here, not diffusion samples.
+Use the native stage engine for durable child identities, receipts, retention,
+bounded groups and cancellation between units. It must schedule prepare units
+before generation and generation before decode; plain graph JSON ordering does
+not enforce these barriers. Export is capped at 512 MiB per state. The original
+runtime continues checking interruption during token generation. Partial units
+do not publish a successful stage receipt.
+
+These nodes stage independent voice-design requests sequentially. CFG's paired
+rows are still branches of one request and are not cross-request tensor batching.
+Voice cloning, direction, dialogue and the managed Whisper bridge retain their
+existing combined interfaces. CPU tests cover interleaved seeded requests,
+masks/positions/frame limits, lifecycle delegation and invalid state/audio.
+GPU memory, audio equivalence, listening quality and throughput need separate
+model-backed acceptance; no speedup is claimed from CPU checks.
 
 ## Development
 
