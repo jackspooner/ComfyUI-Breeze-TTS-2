@@ -127,7 +127,9 @@ class BreezeTTS2LoadModel:
                     "BOOLEAN",
                     {"default": True, "tooltip": "Download the selected checkpoint from Hugging Face when missing locally."},
                 ),
-            }
+            },
+            "optional": {"artifact_identity": ("STRING", {"default": "",
+                "tooltip": "Immutable content fingerprint verified by the native batch owner; changing it reloads the bundle."})},
         }
 
     RETURN_TYPES = ("BREEZE_TTS2_MODEL",)
@@ -136,8 +138,9 @@ class BreezeTTS2LoadModel:
     CATEGORY = CATEGORY
     DESCRIPTION = "Load a Breeze TTS 2 checkpoint with dtype, device, and attention selection."
 
-    def load(self, model, dtype, device, attention, decode_mode, download_if_missing):
-        bundle = loader.load_breeze_bundle(model, dtype, device, attention, bool(download_if_missing), decode_mode)
+    def load(self, model, dtype, device, attention, decode_mode, download_if_missing, artifact_identity=""):
+        bundle = loader.load_breeze_bundle(model, dtype, device, attention, bool(download_if_missing),
+                                           decode_mode, artifact_identity=artifact_identity)
         return (bundle,)
 
 

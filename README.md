@@ -20,7 +20,12 @@ inputs and returns `LATENT` state. Connect it to
 `BreezeTTS2GenerateCodes.state`, then its state to
 `BreezeTTS2DecodeCodes.state` for 24 kHz mono AUDIO. Generate and decode also
 require `breeze_model` from the same loader settings; include the loader in
-each native stage graph. Existing combined nodes remain compatible.
+each native stage graph. Set the loader's optional `artifact_identity` to the
+native model-binding fingerprint for every group. A changed fingerprint, or a
+previously unbound warm bundle, forces the existing owner to unload/reload even
+when file paths and timestamps match. The native batch owner must verify the
+fingerprint against current contents before execution; this input does not hash
+files itself. Existing combined nodes remain compatible.
 
 Preparation retains CPU embeddings, conditional/unconditional CFG masks, base
 positions, actual prefill length, bounded frame cap, sampling controls and RNG

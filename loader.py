@@ -403,6 +403,7 @@ class BreezeBundle:
     decode_mode: str = "eager"
     quantized: bool = False
     patchers: list = field(default_factory=list)
+    artifact_identity: str = ""
 
 
 _ACTIVE_BUNDLE: BreezeBundle | None = None
@@ -448,6 +449,7 @@ def load_breeze_bundle(
     attention_choice: str,
     download_if_missing: bool,
     decode_mode: str = "eager",
+    artifact_identity: str = "",
 ) -> BreezeBundle:
     global _ACTIVE_BUNDLE, _ACTIVE_LOAD_KEY
 
@@ -459,7 +461,8 @@ def load_breeze_bundle(
     device = resolve_device(device_name)
     dtype_mode = resolve_dtype_mode(dtype_name, device)
     attn_impl = resolve_attention(attention_choice, device, dtype_mode)
-    load_key = (str(model_dir), weights_name, wfile.stat().st_mtime_ns, str(device), dtype_mode, attention_choice, decode_mode)
+    load_key = (str(model_dir), weights_name, wfile.stat().st_mtime_ns, str(device), dtype_mode,
+                attention_choice, decode_mode, artifact_identity)
 
     if _ACTIVE_BUNDLE is not None and _ACTIVE_LOAD_KEY == load_key:
         resume_bundle_to_device(_ACTIVE_BUNDLE)
@@ -504,6 +507,7 @@ def load_breeze_bundle(
         attention=attention_choice,
         decode_mode=decode_mode,
         quantized=bool(quant_map),
+        artifact_identity=artifact_identity,
     )
 
     patchers = []
