@@ -86,6 +86,12 @@ def _cfg_input(default: float, tooltip: str) -> tuple:
 
 
 class BreezeTTS2LoadModel:
+    @staticmethod
+    def resolve_stage_artifacts(model, **_):
+        """Use owner precedence without invoking downloads or model loading."""
+        directory, _ = loader.resolve_model_dir(model, False)
+        return {"model": str(directory.resolve())}
+
     @classmethod
     def INPUT_TYPES(cls):
         return {

@@ -36,6 +36,14 @@ def load_bridge():
 
 
 class CutleryWhisperTests(unittest.TestCase):
+    def test_stage_artifact_resolver_uses_owner_precedence_with_download_disabled(self):
+        _, _, node_module = load_bridge()
+        resolve = Mock(return_value=(Path("/explicit/registered/override"), "chosen.safetensors"))
+        node_module.loader.resolve_model_dir = resolve
+        self.assertEqual(node_module.BreezeTTS2LoadModel.resolve_stage_artifacts("choice", dtype="auto"),
+                         {"model": "/explicit/registered/override"})
+        resolve.assert_called_once_with("choice", False)
+
     def setUp(self):
         self.registry, self.whisper, self.nodes = load_bridge()
         self.audio = {"waveform": torch.zeros(1, 2, 24000), "sample_rate": 24000}

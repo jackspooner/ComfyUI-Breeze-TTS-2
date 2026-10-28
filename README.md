@@ -26,6 +26,11 @@ previously unbound warm bundle, forces the existing owner to unload/reload even
 when file paths and timestamps match. The native batch owner must verify the
 fingerprint against current contents before execution; this input does not hash
 files itself. Existing combined nodes remain compatible.
+For read-only native binding discovery,
+`BreezeTTS2LoadModel.resolve_stage_artifacts(**node_inputs)` returns the actual
+selected model directory. It follows the loader's legacy-local and registered
+root precedence with downloads disabled; the directory covers model weights,
+configuration, tokenizer and audio codec. Missing files fail explicitly.
 
 Preparation retains CPU embeddings, conditional/unconditional CFG masks, base
 positions, actual prefill length, bounded frame cap, sampling controls and RNG
