@@ -1,8 +1,10 @@
 import contextlib
+import ast
 from dataclasses import dataclass
 import importlib.util
 from pathlib import Path
 import sys
+import tempfile
 from types import ModuleType, SimpleNamespace
 import unittest
 from unittest.mock import Mock, patch
@@ -88,3 +90,37 @@ class StageTests(unittest.TestCase):
     def test_prompt_frame_budget_is_preserved(self):
         with self.assertRaisesRegex(ValueError, "audio frames"):
             self.stages.prepare(self.bundle, seed=41, **{**self.controls, "max_new_tokens": 63})
+
+    def test_changed_artifact_fingerprint_invalidates_retained_state(self):
+        self.bundle.artifact_identity = "before"
+        state = self.stages.prepare(self.bundle, seed=41, **self.controls)
+        self.bundle.artifact_identity = "after"
+        with self.assertRaisesRegex(ValueError, "BREEZE_STAGE_IDENTITY"):
+            self.stages.BreezeTTS2GenerateCodes().run(self.bundle, state)
+
+    def test_loader_reloads_changed_digest_even_with_identical_path_and_mtime(self):
+        # Execute the actual owner load function with model construction stopped
+        # immediately after the reuse decision; no weights or GPU are involved.
+        tree = ast.parse((ROOT / "loader.py").read_text())
+        function = next(node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name == "load_breeze_bundle")
+        module = ast.Module(body=[ast.ImportFrom(module="__future__", names=[ast.alias(name="annotations")], level=0), function], type_ignores=[])
+        class ReloadRequired(Exception):
+            pass
+        with tempfile.TemporaryDirectory() as directory:
+            weight = Path(directory) / "weights"
+            weight.touch()
+            unload, resume = Mock(), Mock()
+            namespace = {"_ACTIVE_BUNDLE": self.bundle,
+                "_ACTIVE_LOAD_KEY": (directory, "weights", weight.stat().st_mtime_ns, "cpu", "fp32", "eager", "eager", "before"),
+                "DECODE_MODE_OPTIONS": ["eager"], "resolve_model_dir": lambda *args: (Path(directory), "weights"),
+                "weights_path": lambda *args: weight, "resolve_device": lambda *args: "cpu",
+                "resolve_dtype_mode": lambda *args: "fp32", "resolve_attention": lambda *args: "eager",
+                "resume_bundle_to_device": resume, "unload_breeze_bundle": unload,
+                "int8": SimpleNamespace(scan_checkpoint_quantization=Mock(side_effect=ReloadRequired))}
+            exec(compile(ast.fix_missing_locations(module), "loader.py", "exec"), namespace)
+            load = namespace["load_breeze_bundle"]
+            self.assertIs(load("model", "fp32", "cpu", "eager", False, artifact_identity="before"), self.bundle)
+            unload.assert_not_called()
+            with patch.dict(sys.modules, {"transformers": SimpleNamespace(AutoTokenizer=object)}), self.assertRaises(ReloadRequired):
+                load("model", "fp32", "cpu", "eager", False, artifact_identity="after")
+            unload.assert_called_once_with(self.bundle, reason="load settings changed")

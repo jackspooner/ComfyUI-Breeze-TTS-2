@@ -13,7 +13,7 @@ def identity(bundle):
     return {"model_dir": str(bundle.model_dir), "weights_name": bundle.weights_name,
             "device": str(bundle.device), "dtype_name": bundle.dtype_name,
             "attention": bundle.attention, "decode_mode": bundle.decode_mode,
-            "quantized": bundle.quantized}
+            "quantized": bundle.quantized, "artifact_identity": getattr(bundle, "artifact_identity", "")}
 
 
 def cpu_tensors(tensors):

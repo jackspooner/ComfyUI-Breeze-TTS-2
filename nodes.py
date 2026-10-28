@@ -86,6 +86,12 @@ def _cfg_input(default: float, tooltip: str) -> tuple:
 
 
 class BreezeTTS2LoadModel:
+    @staticmethod
+    def resolve_stage_artifacts(model, **_):
+        """Use owner precedence without invoking downloads or model loading."""
+        directory, _ = loader.resolve_model_dir(model, False)
+        return {"model": str(directory.resolve())}
+
     @classmethod
     def INPUT_TYPES(cls):
         return {
@@ -127,7 +133,9 @@ class BreezeTTS2LoadModel:
                     "BOOLEAN",
                     {"default": True, "tooltip": "Download the selected checkpoint from Hugging Face when missing locally."},
                 ),
-            }
+            },
+            "optional": {"artifact_identity": ("STRING", {"default": "",
+                "tooltip": "Immutable content fingerprint verified by the native batch owner; changing it reloads the bundle."})},
         }
 
     RETURN_TYPES = ("BREEZE_TTS2_MODEL",)
@@ -136,8 +144,9 @@ class BreezeTTS2LoadModel:
     CATEGORY = CATEGORY
     DESCRIPTION = "Load a Breeze TTS 2 checkpoint with dtype, device, and attention selection."
 
-    def load(self, model, dtype, device, attention, decode_mode, download_if_missing):
-        bundle = loader.load_breeze_bundle(model, dtype, device, attention, bool(download_if_missing), decode_mode)
+    def load(self, model, dtype, device, attention, decode_mode, download_if_missing, artifact_identity=""):
+        bundle = loader.load_breeze_bundle(model, dtype, device, attention, bool(download_if_missing),
+                                           decode_mode, artifact_identity=artifact_identity)
         return (bundle,)
 
 
